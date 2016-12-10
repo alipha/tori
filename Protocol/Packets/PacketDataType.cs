@@ -1,5 +1,5 @@
 ﻿
-namespace Protocol
+namespace Protocol.Packets
 {
     public enum PacketDataType
     {

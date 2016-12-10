@@ -1,5 +1,5 @@
 ﻿
-namespace Protocol
+namespace Protocol.Packets
 {
     public class PacketContent
     {
@@ -23,7 +23,7 @@ namespace Protocol
             }
         }
 
-        //public short DataLen { get; set; }  // 2 bytes
+        public short DataLen { get; set; }  // 2 bytes
 
         public byte[] Data { get; set; }
     }

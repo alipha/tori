@@ -29,6 +29,20 @@ namespace Tori
         public void Receive(TcpClient client)
         {
             /*
+            var clientStream = client.GetStream();
+            var RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+            while (true)
+            {
+                var receiveBytes = _udpClient.Receive(ref RemoteIpEndPoint);
+                clientStream.Write(receiveBytes, 0, receiveBytes.Length);
+            }
+            */
+
+            // Blocks until a message returns on this socket from a remote
+
+            /*
+
             _dest = new TcpClient(_info.DestIpAddress.GetAddressBytes().Length == 4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6);
             _dest.Connect(_info.DestIpAddress, _info.DestPort);
 
