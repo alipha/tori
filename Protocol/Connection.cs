@@ -9,6 +9,6 @@ namespace Protocol
 
         public ushort DestPort { get; set; }
 
-        public Route[] Routes { get; set; }
+        public Route[] ReturnRoutes { get; set; }
     }
 }

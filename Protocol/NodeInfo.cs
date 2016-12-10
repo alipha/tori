@@ -5,18 +5,21 @@ namespace Protocol
 {
     public class NodeInfo
     {
-        private IPAddress _ipAddress;
+        private byte[] _ipAddress;
         private string _domainName;
 
 
-        public long Id { get; set; }
+        public ulong Id { get; set; }
 
-        public IPAddress Address
+        public byte[] Address
         {
             get
             {
                 if (_ipAddress == null)
-                    _ipAddress = Dns.GetHostAddresses(DomainName).FirstOrDefault();
+                {
+                    var ipAddress = Dns.GetHostAddresses(DomainName).FirstOrDefault();
+                    _ipAddress = ipAddress != null ? ipAddress.GetAddressBytes() : null;
+                }
                 return _ipAddress;
             }
             set

@@ -5,14 +5,14 @@ namespace Protocol.Packets
     {
         //public bool IsFragment { get; set; }    // move this into DirectionAndRouteCount, but can't be encrypted. Can be used to discriminate packets. Bad idea.
 
-        public byte[] Id { get; set; }  // on the outer layer only (16 bytes), null otherwise. Each node does a keyed hash of the Id value to get the next Id value. Starts with the SequenceId
+        //public byte[] Id { get; set; }  // on the outer layer only (16 bytes), null otherwise. Each node does a keyed hash of the Id value to get the next Id value. Starts with the SequenceId
         
         // this could be used to track packets
         //public byte FragmentId { get; set; }    // lower 4 bits is the sequence #. upper 4 bits is the (# of fragments - 1)
         
         // This needs to be inside the Route
         // Encrypt (this and EncryptedLen) by taking the keyed hash of the Id and xor the bottom 3 bytes with (this and the EncryptedLen)
-        public sbyte DirectionAndRouteCount { get; set; }    // if negative, towards client. if positive, towards exit node. RouteCount is bottom 3 bits
+        public sbyte DirectionAndNodeCount { get; set; }    // if negative, towards client. if positive, towards exit node. NodeCount is bottom 3 bits (number of nodes in route)
 
         //public short EncryptedLen { get; set; }  // 2 bytes. Don't need. The encrypted len is always the remainder of the packet.
 

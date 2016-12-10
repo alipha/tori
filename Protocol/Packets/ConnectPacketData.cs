@@ -15,7 +15,7 @@ namespace Protocol.Packets
 
         public byte RouteCount { get; set; }    // must be at least 1. can be greater than the number of routes (in which case, expect another route packet)
 
-        public PacketRoute[] Routes { get; set; }
+        public PacketRoute[] ReturnRoutes { get; set; }
 
 
         public IPAddress DestIpAddress
@@ -96,10 +96,10 @@ namespace Protocol.Packets
             if (routesInPacket * PacketRoute.EncryptedSize != remainingLength)
                 throw new Exception(string.Format("RouteListPacketData.ReadBytes: remaining length {0} is not a multiple of {1}.", remainingLength, PacketRoute.EncryptedSize));
 
-            Routes = new PacketRoute[routesInPacket];
+            ReturnRoutes = new PacketRoute[routesInPacket];
 
             for (var r = 0; r < routesInPacket; r++)
-                Routes[r] = new PacketRoute { EncryptedBytes = buffer.ReadBytes(PacketRoute.EncryptedSize) };
+                ReturnRoutes[r] = new PacketRoute { EncryptedBytes = buffer.ReadBytes(PacketRoute.EncryptedSize) };
         }
 
 
@@ -115,7 +115,7 @@ namespace Protocol.Packets
             buffer.Write(DestPort);
             buffer.Write(RouteCount);
 
-            foreach (var route in Routes)
+            foreach (var route in ReturnRoutes)
                 buffer.Write(route.EncryptedBytes);
 
             return buffer.TotalWritten;

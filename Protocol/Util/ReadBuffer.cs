@@ -5,12 +5,16 @@ namespace Protocol.Util
     public class ReadBuffer
     {
         private readonly byte[] _buffer;
-        private readonly int _initialPosition;
+        private int _initialPosition;
         private int _position;
 
         public byte[] Buffer { get { return _buffer;  } }
 
-        public int InitialPosition { get { return _initialPosition; } }
+        public int InitialPosition
+        {
+            get { return _initialPosition; }
+            set { _position = _initialPosition = value; }
+        }
 
         public int Position { get { return _position; } }
 
@@ -20,7 +24,7 @@ namespace Protocol.Util
         public ReadBuffer(byte[] buffer, int initialPosition)
         {
             _buffer = buffer;
-            _position = _initialPosition = initialPosition;
+            InitialPosition = initialPosition;
         }
 
         public byte[] ReadBytes(int count)

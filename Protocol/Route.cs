@@ -7,7 +7,7 @@ namespace Protocol
     {
         public int StartSequenceId { get; set; }
 
-        public Tuple<byte[], NodeInfo>[] Nodes { get; set; }    // <SymmetricKey, Node>
+        public RouteNode[] Nodes { get; set; }
 
         public Route OldRoute { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Socks;
 using System.Net.Sockets;
+using Sodium;
 
 namespace Tori
 {
@@ -8,6 +9,8 @@ namespace Tori
     {
         public static void Main(string[] args)
         {
+            SodiumCore.Init();
+
             /*
             var port = 57121;
 

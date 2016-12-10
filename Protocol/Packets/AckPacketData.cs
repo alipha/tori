@@ -14,6 +14,7 @@ namespace Protocol.Packets
 
         public Tuple<ulong, uint>[] Verifiers { get; set; }  // <SequenceId, Verifier>
         // Might add some way to authenticate the Id was set correctly and the padding
+        // Or just a simple: LowSequenceId, HighSequenceId?
 
 
         public void ReadBytes(byte[] src, int srcIndex, int length)
