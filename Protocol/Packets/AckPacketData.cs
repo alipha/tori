@@ -8,7 +8,7 @@ namespace Protocol.Packets
         public const int VerifierSize = 12;
 
 
-        public byte SubstituteRouteCount { get; set; }
+        public byte SubstituteRouteCount { get; set; }  // if any routes are provided, the exit node will have to ACK
 
         public Tuple<byte, PacketRoute>[] NewRoutes { get; set; }   // <Position of the route to replace, New route>
 

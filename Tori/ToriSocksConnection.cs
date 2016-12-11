@@ -29,7 +29,15 @@ namespace Tori
         public bool Accept(SocksConnectionInfo info)
         {
             _info = info;
-            CreateConnection();
+
+            var connection = new Connection
+            {
+                AddressTypeByte = (DestAddressType)(byte)_info.DestAddressType,
+                DestAddress = _info.DestAddressType == SocksAddressType.DomainName ? Encoding.ASCII.GetBytes(_info.DestDomainName) : _info.DestIpAddress.GetAddressBytes(),
+                DestPort = (ushort)_info.DestPort
+            };
+
+            var manager = new ConnectionManager(connection);
             return true;
         }
 
@@ -61,82 +69,6 @@ namespace Tori
 
             Pipe(_destStream, _clientStream);
              */
-        }
-
-
-        private void CreateConnection()
-        {
-            var nodesJson = File.ReadAllText(@"C:\Users\Kevin.Spinar\Documents\Visual Studio 2015\Projects\tori\nodes.txt");
-            var nodes = new JavaScriptSerializer().Deserialize<NodeInfo[]>(nodesJson);
-            
-            var routes = new Route[2];
-
-            for (var i = 0; i < routes.Length; i++)
-                routes[i] = GenerateRoute(nodes);
-
-            var connection = new Connection
-            {
-                AddressTypeByte = (DestAddressType)(byte)_info.DestAddressType,
-                DestAddress = _info.DestAddressType == SocksAddressType.DomainName ? Encoding.ASCII.GetBytes(_info.DestDomainName) : _info.DestIpAddress.GetAddressBytes(),
-                DestPort = (ushort)_info.DestPort,
-                ReturnRoutes = routes
-            };
-            
-
-        }
-
-
-        private static Route GenerateRoute(NodeInfo[] possibleNodes, int startSequenceId = 0, Route oldRoute = null)
-        {
-            var nodes = new RouteNode[3];
-            var i = 0;
-
-            while (i < nodes.Length)
-            {
-                var nodeIndex = SodiumCore.GetRandomNumber(possibleNodes.Length);
-                var node = possibleNodes[nodeIndex];
-
-                if (nodes.Any(n => n != null && n.Node.Id == node.Id))
-                    continue;
-
-                var keyPair = PublicKeyBox.GenerateKeyPair();
-                
-                nodes[i++] = new RouteNode
-                {
-                    EphemeralPublicKey = keyPair.PublicKey,
-                    SymmetricKey = GenerateSymmetricKey(node.PublicKey, null, keyPair.PublicKey, keyPair.PrivateKey),
-                    Node = node
-                };
-            }
-
-            return new Route
-            {
-                StartSequenceId = startSequenceId,
-                OldRoute = oldRoute,
-                Nodes = nodes
-            };
-        }
-
-
-        private static byte[] GenerateSymmetricKey(byte[] nodePublicKey, byte[] nodePrivateKey, byte[] ephemeralPublicKey, byte[] ephemeralPrivateKey)
-        {
-            if(nodePrivateKey == null && ephemeralPrivateKey == null)
-                throw new ArgumentNullException("nodePrivateKey", "Expected exactly one of nodePrivateKey or ephemeralPrivateKey to be null, but both were null.");
-
-            if(nodePrivateKey != null && ephemeralPrivateKey != null)
-                throw new ArgumentNullException("nodePrivateKey", "Expected exactly one of nodePrivateKey or ephemeralPrivateKey to be null, but both were provided.");
-
-            var privateKey = nodePrivateKey ?? ephemeralPrivateKey;
-            var publicKey = nodePrivateKey != null ? ephemeralPublicKey : nodePublicKey;
-
-            var q = ScalarMult.Mult(privateKey, publicKey);
-
-            var bytes = new byte[q.Length + ephemeralPublicKey.Length + nodePublicKey.Length];
-            var writer = new WriteBuffer(bytes, 0);
-            writer.Write(q);
-            writer.Write(ephemeralPublicKey);
-            writer.Write(nodePublicKey);
-            return GenericHash.Hash(bytes, null, 32);
         }
 
 

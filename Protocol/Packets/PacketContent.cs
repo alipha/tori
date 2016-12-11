@@ -3,9 +3,9 @@ namespace Protocol.Packets
 {
     public class PacketContent
     {
-        public byte[] UserId { get; set; }      // 16 bytes
+        //public byte[] UserId { get; set; }      // 16 bytes
 
-        public ushort ConnectionId { get; set; }    // 2 bytes // old: 16 bytes
+        public ushort ConnectionId { get; set; }    // 16 bytes (2 bytes if UserId)
 
         public ulong SequenceId { get; set; }    // 8 bytes
 

@@ -5,7 +5,7 @@ namespace Protocol.Packets
     {
         //public bool IsFragment { get; set; }    // move this into DirectionAndRouteCount, but can't be encrypted. Can be used to discriminate packets. Bad idea.
 
-        //public byte[] Id { get; set; }  // on the outer layer only (16 bytes), null otherwise. Each node does a keyed hash of the Id value to get the next Id value. Starts with the SequenceId
+        public byte[] Id { get; set; }  // on the outer layer only (16 bytes), null otherwise. Each node does a keyed hash of the Id value to get the next Id value. Starts with the SequenceId
         
         // this could be used to track packets
         //public byte FragmentId { get; set; }    // lower 4 bits is the sequence #. upper 4 bits is the (# of fragments - 1)
@@ -22,7 +22,7 @@ namespace Protocol.Packets
 
         // All of the below is encrypted with the shared secret
 
-        public ulong DestNodeId { get; set; }    // 8 bytes
+        public ulong DestNodeId { get; set; }    // 8 bytes. null if towards client
 
         public PacketRoute Route { get; set; }   // null if towards Exit Node
 
@@ -31,6 +31,5 @@ namespace Protocol.Packets
         public PacketContent Content { get; set; }
 
         public byte[] Mac { get; set; }     // 16 bytes (does this need to be on every layer to prevent malicious nodes from changing it to DoS clients or other nodes?)
-        // To use libsodium, this needs to be on every layer anyway
     }
 }
