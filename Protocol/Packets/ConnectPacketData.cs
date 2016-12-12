@@ -7,15 +7,15 @@ namespace Protocol.Packets
 {
     public class ConnectPacketData : IPacketData
     {
-        public byte AddressTypeByte { get; set; }   // combine with RouteCount?
+        public byte AddressTypeByte;   // combine with RouteCount?
 
-        public byte[] DestAddress { get; set; }
+        public byte[] DestAddress;
 
-        public ushort DestPort { get; set; }
+        public ushort DestPort;
 
-        public byte RouteCount { get; set; }    // must be at least 1. can be greater than the number of routes (in which case, expect another route packet)
+        public uint RouteCount;    // must be at least 1. can be greater than the number of routes (in which case, expect another route packet)
 
-        public PacketRoute[] ReturnRoutes { get; set; }
+        public PacketRoute[] ReturnRoutes;
 
 
         public IPAddress DestIpAddress
@@ -64,10 +64,9 @@ namespace Protocol.Packets
         }
 
 
-        public void ReadBytes(byte[] src, int srcIndex, int length)
+        public void Read(ReadBuffer buffer, int length)
         {
-            var buffer = new ReadBuffer(src, srcIndex);
-            AddressTypeByte = buffer.ReadByte();
+            buffer.Read(out AddressTypeByte);
             
             switch (AddressType)
             {
@@ -78,7 +77,8 @@ namespace Protocol.Packets
                     DestAddress = buffer.ReadBytes(16);
                     break;
                 case DestAddressType.DomainName:
-                    var destLen = buffer.ReadByte();
+                    byte destLen;
+                    buffer.Read(out destLen);
                     var addressBytes = buffer.ReadBytes(destLen);
                     DestDomainName = Encoding.ASCII.GetString(addressBytes);
                     break;
@@ -86,8 +86,8 @@ namespace Protocol.Packets
                     throw new Exception(string.Format("RouteListPacketData.ReadBytes: invalid address type {0}.", AddressTypeByte));
             }
 
-            DestPort = buffer.ReadUShort();
-            RouteCount = buffer.ReadByte();  // total route count
+            buffer.Read(out DestPort);
+            buffer.Read(out RouteCount);  // total route count
 
             var remainingLength = length - buffer.TotalRead;
 
@@ -103,9 +103,8 @@ namespace Protocol.Packets
         }
 
 
-        public int WriteBytes(byte[] dest, int destIndex)
+        public void Write(WriteBuffer buffer)
         {
-            var buffer = new WriteBuffer(dest, destIndex);
             buffer.Write(AddressTypeByte);
 
             if (AddressType == DestAddressType.DomainName)
@@ -117,8 +116,6 @@ namespace Protocol.Packets
 
             foreach (var route in ReturnRoutes)
                 buffer.Write(route.EncryptedBytes);
-
-            return buffer.TotalWritten;
         }
     }
 }

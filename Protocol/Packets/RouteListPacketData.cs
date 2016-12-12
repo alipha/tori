@@ -8,10 +8,8 @@ namespace Protocol.Packets
         PacketRoute[] ReturnRoutes;
 
 
-        public void ReadBytes(byte[] src, int srcIndex, int length)
+        public void Read(ReadBuffer buffer, int length)
         {
-            var buffer = new ReadBuffer(src, srcIndex);
-
             var routeCount = length / PacketRoute.EncryptedSize;
 
             if(routeCount * PacketRoute.EncryptedSize != length)
@@ -23,14 +21,10 @@ namespace Protocol.Packets
                 ReturnRoutes[i] = new PacketRoute { EncryptedBytes = buffer.ReadBytes(PacketRoute.EncryptedSize) };
         }
 
-        public int WriteBytes(byte[] dest, int destIndex)
+        public void Write(WriteBuffer buffer)
         {
-            var buffer = new WriteBuffer(dest, destIndex);
-
             foreach (var route in ReturnRoutes)
                 buffer.Write(route.EncryptedBytes);
-
-            return buffer.TotalWritten;
         }
     }
 }

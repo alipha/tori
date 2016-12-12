@@ -83,12 +83,12 @@ namespace Node
 
                 nodes[i] = new NodeInfo
                 {
-                    Id = idReader.ReadULong(),
                     Address = IPAddress.Any.GetAddressBytes(),
                     Port = 57120 + i,
                     PublicKey = keyPair.PublicKey
                 };
 
+                idReader.Read(out nodes[i].Id);
                 idReader.InitialPosition = 0;
                 Console.WriteLine("\"{0}\",", Convert.ToBase64String(keyPair.PrivateKey));
             }

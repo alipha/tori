@@ -1,5 +1,6 @@
 ﻿
 using System;
+using Protocol.Util;
 
 namespace Protocol.Packets
 {
@@ -7,16 +8,14 @@ namespace Protocol.Packets
     {
         public byte[] Bytes { get; set; }   // 0 bytes would indicate to close the connection
 
-        public void ReadBytes(byte[] src, int srcIndex, int length)
+        public void Read(ReadBuffer buffer, int length)
         {
-            Bytes = new byte[length];
-            Array.Copy(src, srcIndex, Bytes, 0, length);
+            Bytes = buffer.ReadBytes(length);
         }
 
-        public int WriteBytes(byte[] dest, int destIndex)
+        public void Write(WriteBuffer buffer)
         {
-            Bytes.CopyTo(dest, destIndex);
-            return Bytes.Length;
+            buffer.Write(Bytes);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Tori
 
             var connection = new Connection
             {
-                AddressTypeByte = (DestAddressType)(byte)_info.DestAddressType,
+                AddressType = (DestAddressType)(byte)_info.DestAddressType,
                 DestAddress = _info.DestAddressType == SocksAddressType.DomainName ? Encoding.ASCII.GetBytes(_info.DestDomainName) : _info.DestIpAddress.GetAddressBytes(),
                 DestPort = (ushort)_info.DestPort
             };

@@ -1,12 +1,14 @@
 ﻿
+using Protocol.Util;
+
 namespace Protocol.Packets
 {
     public interface IPacketData
     {
         //byte[] Bytes { get; set; }
 
-        void ReadBytes(byte[] src, int srcIndex, int length);
+        void Read(ReadBuffer buffer, int length);
 
-        int WriteBytes(byte[] dest, int destIndex); // returns how many bytes were written
+        void Write(WriteBuffer buffer);
     }
 }

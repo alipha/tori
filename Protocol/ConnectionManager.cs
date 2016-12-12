@@ -12,12 +12,18 @@ namespace Protocol
 {
     public class ConnectionManager
     {
+        public static readonly byte[] ZeroNonce = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        //public static readonly byte[] OneNonce = { 0, 0, 0, 0, 0, 0, 0, 1};
+
         private static IList<NodeInfo> _possibleNodes;
         private Connection _connection;
 
         public ConnectionManager(Connection connection)
         {
             _connection = connection;
+            _connection.UserId = SodiumCore.GetRandomBytes(8);
+            _connection.ConnectionId = 0;
+            _connection.NextSequenceId = 0;
 
             if (_possibleNodes == null)
             {
@@ -36,7 +42,52 @@ namespace Protocol
 
         public ConnectPacketData GetConnectPacket()
         {
+            var connectPacketData = new ConnectPacketData
+            {
+                AddressType = _connection.AddressType,
+                DestPort = _connection.DestPort,
+                RouteCount = (uint)_connection.ReturnRoutes.Length,
+                ReturnRoutes = // TODO
+            };
+
+            if (_connection.AddressType == DestAddressType.DomainName)
+                connectPacketData.DestDomainName = _connection.DestDomainName;
+            else
+                connectPacketData.DestIpAddress = _connection.DestIpAddress;
+
+            var bytesToEncrypt = new byte[PacketContent.MaxSendDataLen + 27];
+
+            var buffer = new WriteBuffer(bytesToEncrypt, 0);
+            buffer.Write(_connection.UserId);
+            buffer.Write(_connection.ConnectionId);
+            buffer.Write(_connection.NextSequenceId);
+            buffer.Write((byte)PacketDataType.Connect);
+            buffer.Write(connectPacketData);
+            var paddingLength = bytesToEncrypt.Length - buffer.TotalWritten;
+            buffer.Write(new byte[paddingLength]);
+
+            var route = GenerateRoute(_possibleNodes);
+            var encrypted = SecretBox.Create(bytesToEncrypt, OneNonce, route.Nodes[2].SymmetricKey);
+
+            var destIdAndDataLen = new byte[10];
+            buffer.Buffer = destIdAndDataLen;
+            buffer.Write((ulong)0);
+            buffer.Write((ushort)(encrypted.Length - 16));
+
+            var innerPacketBytes = new byte[bytesToEncrypt.Length + 67];
+            buffer.Buffer = innerPacketBytes;
             
+            buffer.Write(route.Nodes[2].Node.Id);
+            buffer.Write(route.Nodes[2].EphemeralPublicKey);
+            buffer.Write((byte)(route.Nodes[2].SymmetricKey[31] & 1));
+            buffer.Write(StreamEncryption.EncryptChaCha20(destIdAndDataLen, ZeroNonce, route.Nodes[2].SymmetricKey));
+            buffer.Write(encrypted);
+
+            encrypted = SecretBox.Create(encrypted, OneNonce, route.Nodes[2].SymmetricKey);
+
+            var destId = new byte[8];
+            buffer.Buffer = destId;
+            buffer.Write(route.Nodes[1].Node.Id);
         }
 
 

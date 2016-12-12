@@ -4,7 +4,7 @@ namespace Protocol.Util
 {
     public class ReadBuffer
     {
-        private readonly byte[] _buffer;
+        private byte[] _buffer;
         private int _initialPosition;
         private int _position;
 
@@ -35,30 +35,29 @@ namespace Protocol.Util
             return dest;
         }
 
-        public byte ReadByte()
+        public void Read(out byte value)
         {
-            return _buffer[_position++];
+            value = _buffer[_position++];
         }
 
-        public ushort ReadUShort()
+        public void Read(out ushort value)
         {
-            var value = (ushort) ((_buffer[_position] << 8) | _buffer[_position + 1]);
+            value = (ushort) ((_buffer[_position] << 8) | _buffer[_position + 1]);
             _position += 2;
-            return value;
         }
 
-        public uint ReadUInt()
+        public void Read(out uint value)
         {
-            var value = (uint)((_buffer[_position] << 24) | (_buffer[_position + 1] << 16) | (_buffer[_position + 2] << 8) | _buffer[_position + 3]);
+            value = (uint)((_buffer[_position] << 24) | (_buffer[_position + 1] << 16) | (_buffer[_position + 2] << 8) | _buffer[_position + 3]);
             _position += 4;
-            return value;
         }
 
-        public ulong ReadULong()
+        public void Read(out ulong value)
         {
-            var topValue = ReadUInt();
-            var bottomValue = ReadUInt();
-            return ((ulong)topValue << 32) | bottomValue;
+            uint topValue, bottomValue;
+            Read(out topValue);
+            Read(out bottomValue);
+            value = ((ulong)topValue << 32) | bottomValue;
         }
     }
 }

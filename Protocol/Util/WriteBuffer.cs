@@ -1,15 +1,29 @@
 ﻿
+using Protocol.Packets;
+
 namespace Protocol.Util
 {
     public class WriteBuffer
     {
-        private readonly byte[] _buffer;
-        private readonly int _initialPosition;
+        private byte[] _buffer;
+        private int _initialPosition;
         private int _position;
 
-        public byte[] Buffer { get { return _buffer; } }
+        public byte[] Buffer
+        {
+            get { return _buffer; }
+            set
+            {
+                _buffer = value;
+                InitialPosition = 0;
+            }
+        }
 
-        public int InitialPosition { get { return _initialPosition; } }
+        public int InitialPosition
+        {
+            get { return _initialPosition; }
+            set { _position = _initialPosition = value; }
+        }
 
         public int Position { get { return _position; } }
 
@@ -50,6 +64,11 @@ namespace Protocol.Util
         {
             Write((uint)(value >> 32));
             Write((uint)(value & uint.MaxValue));
+        }
+
+        public void Write(IPacketData data)
+        {
+            data.Write(this);
         }
     }
 }

@@ -8,27 +8,27 @@ namespace Protocol.Packets
         public const int VerifierSize = 12;
 
 
-        public byte SubstituteRouteCount { get; set; }  // if any routes are provided, the exit node will have to ACK
+        public byte SubstituteRouteCount;  // if any routes are provided, the exit node will have to ACK
 
-        public Tuple<byte, PacketRoute>[] NewRoutes { get; set; }   // <Position of the route to replace, New route>
+        public Tuple<uint, PacketRoute>[] NewRoutes;   // <Position of the route to replace, New route>
 
-        public Tuple<ulong, uint>[] Verifiers { get; set; }  // <SequenceId, Verifier>
+        public Tuple<ulong, uint>[] Verifiers;  // <SequenceId, Verifier>
         // Might add some way to authenticate the Id was set correctly and the padding
         // Or just a simple: LowSequenceId, HighSequenceId?
 
 
-        public void ReadBytes(byte[] src, int srcIndex, int length)
+        public void Read(ReadBuffer buffer, int length)
         {
-            var buffer = new ReadBuffer(src, srcIndex);
-            SubstituteRouteCount = buffer.ReadByte();
+            buffer.Read(out SubstituteRouteCount);
 
-            NewRoutes = new Tuple<byte, PacketRoute>[SubstituteRouteCount];
+            NewRoutes = new Tuple<uint, PacketRoute>[SubstituteRouteCount];
 
             for (var i = 0; i < SubstituteRouteCount; i++)
             {
-                var position = buffer.ReadByte();
+                uint position;
+                buffer.Read(out position);
 
-                NewRoutes[i] = new Tuple<byte, PacketRoute>(
+                NewRoutes[i] = new Tuple<uint, PacketRoute>(
                     position,
                     new PacketRoute { EncryptedBytes = buffer.ReadBytes(PacketRoute.EncryptedSize) }
                 );
@@ -45,14 +45,16 @@ namespace Protocol.Packets
 
             for (var r = 0; r < verifierCount; r++)
             {
-                var sequenceId = buffer.ReadULong();
-                Verifiers[r] = new Tuple<ulong, uint>(sequenceId, buffer.ReadUInt());
+                ulong sequenceId;
+                uint verifier;
+                buffer.Read(out sequenceId);
+                buffer.Read(out verifier);
+                Verifiers[r] = new Tuple<ulong, uint>(sequenceId, verifier);
             }
         }
 
-        public int WriteBytes(byte[] dest, int destIndex)
+        public void Write(WriteBuffer buffer)
         {
-            var buffer = new WriteBuffer(dest, destIndex);
             buffer.Write(SubstituteRouteCount);
 
             foreach (var newRoute in NewRoutes)
@@ -66,8 +68,6 @@ namespace Protocol.Packets
                 buffer.Write(verifier.Item1);
                 buffer.Write(verifier.Item2);
             }
-
-            return buffer.TotalWritten;
         }
     }
 }

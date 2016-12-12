@@ -9,7 +9,7 @@ namespace Protocol
         private string _domainName;
 
 
-        public ulong Id { get; set; }
+        public ulong Id;
 
         public byte[] Address
         {
@@ -42,8 +42,8 @@ namespace Protocol
             }
         }
 
-        public int Port { get; set; }
+        public int Port;
 
-        public byte[] PublicKey { get; set; }
+        public byte[] PublicKey;
     }
 }
